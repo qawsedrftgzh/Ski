@@ -9,7 +9,7 @@ local S = minetest.get_translator("boat")
 
 local function is_water(pos)
 	local nn = minetest.get_node(pos).name
-	return minetest.get_item_group(nn, "liquid") ~= 0 or nn == "default:snowblock"
+	return nn == "default:dirt_with_snow" or nn == "default:snowblock" or nn == "default:snow"
 end
 
 
@@ -293,108 +293,3 @@ minetest.register_craft({
 	recipe = "ski:ski",
 	burntime = 20,
 })
-
-
-
---Nodes
-
-minetest.register_node("ski:snow_source", {
-	description = "snow Source",
-	drawtype = "liquid",
-	tiles = {
-		{
-			name = "default_snow.png",
-			animation = {
-				type = "vertical_frames",
-				aspect_w = 16,
-				aspect_h = 16,
-				length = 2.0,
-			},
-		},
-	},
-	special_tiles = {
-		{
-			name = "default_snow.png",
-			animation = {
-				type = "vertical_frames",
-				aspect_w = 16,
-				aspect_h = 16,
-				length = 2.0,
-			},
-			backface_culling = false,
-		},
-	},
-	alpha = 255,
-	paramtype = "light",
-	walkable = false,
-	pointable = true,
-	diggable = true,
-	buildable_to = true,
-	is_ground_content = false,
-	drop = "",
-	drowning = 1,
-	liquidtype = "source",
-	liquid_alternative_flowing = "ski:snow_flowing",
-	liquid_alternative_source = "ski:snow_source",
-	liquid_viscosity = 1,
-    post_effect_color = {a = 200, r = 128, g = 128, b = 128},
-	groups = {liquid = 3, puts_out_fire = 1, cools_lava = 1},
-	sounds = default.node_sound_water_defaults(),
-})
-
-minetest.register_node("ski:snow_flowing", {
-	description = "Flowing snow",
-	drawtype = "flowingliquid",
-	tiles = {"default_water.png"},
-	special_tiles = {
-		{
-			name = "default_snow.png",
-			backface_culling = false,
-			animation = {
-				type = "vertical_frames",
-				aspect_w = 16,
-				aspect_h = 16,
-				length = 0.8,
-			},
-		},
-		{
-			name = "default_snow.png",
-			backface_culling = true,
-			animation = {
-				type = "vertical_frames",
-				aspect_w = 16,
-				aspect_h = 16,
-				length = 0.8,
-			},
-		},
-	},
-	alpha = 255,
-	paramtype = "light",
-	paramtype2 = "flowingliquid",
-	walkable = false,
-	pointable = true,
-	diggable = true,
-	buildable_to = true,
-	is_ground_content = false,
-	drop = "",
-	drowning = 1,
-	liquidtype = "flowing",
-	liquid_alternative_flowing = "ski:snow_flowing",
-	liquid_alternative_source = "ski:snow_source",
-	liquid_viscosity = 0.1,
-	post_effect_color = {a = 200, r = 128, g = 128, b = 128},
-	groups = {liquid = 3, puts_out_fire = 1,
-		not_in_creative_inventory = 1, cools_lava = 1},
-	sounds = default.node_sound_water_defaults(),
-})
---dont work minetest says that bucket is nil 
--- bucket.register_liquid(
---	"ski:snow_source",
---	"ski:snow_flowing",
---	"ski:bucket_snow",
---	"bucket_water.png",
---	"snow Bucket",
---	{water_bucket = 1}
---)
-
-
