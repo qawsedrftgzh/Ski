@@ -35,7 +35,7 @@ local ski = {
 		-- lowering it causes the ski to fall through the world if underwater
 		collisionbox = {-0.2, 0.2, -0.2, 0.2, 0.3, 0.2},
 		visual = "mesh",
-		mesh = "boats_boat.obj",
+		mesh = "ski.obj",
 		textures = {"default_wood.png"},
 	},
 
@@ -64,7 +64,7 @@ function ski.on_rightclick(self, clicker)
 			clicker:set_pos(pos)
 		end)
 	elseif not self.driver then
-        self.auto = true
+        self.auto = false
 		local attach = clicker:get_attach()
 		if attach and attach:get_luaentity() then
 			local luaentity = attach:get_luaentity()
@@ -75,7 +75,7 @@ function ski.on_rightclick(self, clicker)
 		end
 		self.driver = name
 		clicker:set_attach(self.object, "",
-			{x = 0.5, y = 1, z = -3}, {x = 0, y = 0, z = 0})
+			{x = 0.5, y = 0, z = -3}, {x = 0, y = 0, z = 0})
 		player_api.player_attached[name] = true
 		minetest.after(0.2, function()
 			player_api.set_animation(clicker, "stand" , 30)
@@ -155,7 +155,7 @@ function ski.on_step(self, dtime)
 					minetest.chat_send_player(self.driver, S("Boat cruise mode off"))
 				end
 			elseif ctrl.up or self.auto then
-				self.v = self.v + dtime * 4.0
+				self.v = self.v + dtime * 2.0
 			end
 			if ctrl.left then
 				if self.v < -0.001 then
@@ -188,7 +188,7 @@ function ski.on_step(self, dtime)
 	end
 
 	local p = self.object:get_pos()
-	p.y = p.y - 0.5
+	p.y = p.y - 0.001
 	local new_velo
 	local new_acce = {x = 0, y = 0, z = 0}
 	if not is_water(p) then
@@ -206,8 +206,8 @@ function ski.on_step(self, dtime)
 		p.y = p.y + 1
 		if is_water(p) then
 			local y = self.object:get_velocity().y
-			if y >= 5 then
-				y = 5
+			if y >= 10 then
+				y = 10
 			elseif y < 0 then
 				new_acce = {x = 0, y = 20, z = 0}
 			else
@@ -238,7 +238,7 @@ minetest.register_entity("ski:ski", ski)
 
 
 minetest.register_craftitem("ski:ski", {
-	description = S("Boat"),
+	description = S("Ski"),
 	inventory_image = "ski_inventory.png",
 	wield_image = "ski_wield.png",
 	wield_scale = {x = 2, y = 2, z = 1},
