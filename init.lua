@@ -33,7 +33,7 @@ local ski = {
 		physical = true,
 		-- Warning: Do not change the position of the collisionbox top surface,
 		-- lowering it causes the ski to fall through the world if underwater
-		collisionbox = {-0.2, 0.2, -0.2, 0.2, 0.3, 0.2},
+		collisionbox = {-0.3, 0.2, -0.2, 0.3, 0.3, 0.2},
 		visual = "mesh",
 		mesh = "ski.obj",
 		textures = {"default_wood.png"},
