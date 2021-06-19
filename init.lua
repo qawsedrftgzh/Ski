@@ -1,7 +1,7 @@
 -- ski/init.lua
 
 -- Load support for MT game translation.
-local S = minetest.get_translator("boat")
+local S = minetest.get_translator("Ski")
 
 --
 -- Helper functions
@@ -282,9 +282,9 @@ minetest.register_craftitem("ski:ski", {
 minetest.register_craft({
 	output = "ski:ski",
 	recipe = {
-		{"",           "",           ""          },
-		{"group:wood", "",           "group:wood"},
-		{"group:wood", "group:wood", "group:wood"},
+		{"group:wood", "", "" },
+		{"", "group:wood", ""},
+		{"", "", "group:wood"},
 	},
 })
 
