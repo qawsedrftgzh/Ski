@@ -7,7 +7,7 @@ local S = minetest.get_translator("Ski")
 -- Helper functions
 --
 
-local function is_water(pos)
+local function is_snow(pos)
 	local nn = minetest.get_node(pos).name
 	return nn == "default:dirt_with_snow" or nn == "default:snowblock" or nn == "default:snow"
 end
@@ -146,13 +146,13 @@ function ski.on_step(self, dtime)
 			if ctrl.up and ctrl.down then
 				if not self.auto then
 					self.auto = true
-					minetest.chat_send_player(self.driver, S("Boat cruise mode on"))
+					minetest.chat_send_player(self.driver, S("Ski cruise mode on"))
 				end
 			elseif ctrl.down then
 				self.v = self.v - dtime * 2.0
 				if self.auto then
 					self.auto = false
-					minetest.chat_send_player(self.driver, S("Boat cruise mode off"))
+					minetest.chat_send_player(self.driver, S("Ski cruise mode off"))
 				end
 			elseif ctrl.up or self.auto then
 				self.v = self.v + dtime * 2.0
@@ -191,7 +191,7 @@ function ski.on_step(self, dtime)
 	p.y = p.y - 0.001
 	local new_velo
 	local new_acce = {x = 0, y = 0, z = 0}
-	if not is_water(p) then
+	if not is_snow(p) then
 		local nodedef = minetest.registered_nodes[minetest.get_node(p).name]
 		if nodedef.walkable then
 			--self.v = 0
@@ -204,7 +204,7 @@ function ski.on_step(self, dtime)
 		self.object:set_pos(self.object:get_pos())
 	else
 		p.y = p.y + 1
-		if is_water(p) then
+		if is_snow(p) then
 			local y = self.object:get_velocity().y
 			if y >= 10 then
 				y = 10
@@ -259,7 +259,7 @@ minetest.register_craftitem("ski:ski", {
 		if pointed_thing.type ~= "node" then
 			return itemstack
 		end
-		if not is_water(pointed_thing.under) then
+		if not is_snow(pointed_thing.under) then
 			return itemstack
 		end
 		pointed_thing.under.y = pointed_thing.under.y + 0.5
