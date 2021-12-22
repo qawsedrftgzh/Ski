@@ -193,6 +193,13 @@ function ski.on_step(self, dtime)
 	local new_velo
 	local new_acce = {x = 0, y = 0, z = 0}
 	if not is_snow(p) then
+		-- no snow drag
+		drag = dtime*1
+		if math.abs(self.v) <= math.abs(drag) then
+			self.v = 0
+		else
+			self.v = self.v - drag
+		end
 		local nodedef = minetest.registered_nodes[minetest.get_node(p).name]
 		if nodedef.walkable then
 			--self.v = 0
