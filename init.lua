@@ -139,6 +139,7 @@ end
 
 function ski.on_step(self, dtime)
 	self.v = get_v(self.object:get_velocity()) * math.sign(self.v)
+	local drive_v = 0
 	if self.driver then
 		local driver_objref = minetest.get_player_by_name(self.driver)
 		if driver_objref then
@@ -149,13 +150,13 @@ function ski.on_step(self, dtime)
 					minetest.chat_send_player(self.driver, S("Ski cruise mode on"))
 				end
 			elseif ctrl.down then
-				self.v = self.v - dtime * 2.0
+				drive_v = - dtime * 2.0
 				if self.auto then
 					self.auto = false
 					minetest.chat_send_player(self.driver, S("Ski cruise mode off"))
 				end
 			elseif ctrl.up or self.auto then
-				self.v = self.v + dtime * 2.0
+				drive_v = dtime * 2.0
 			end
 			if ctrl.left then
 				if self.v < -0.001 then
@@ -173,7 +174,7 @@ function ski.on_step(self, dtime)
 		end
 	end
 	local velo = self.object:get_velocity()
-	if self.v == 0 and velo.x == 0 and velo.y == 0 and velo.z == 0 then
+	if drive_v ==0 and self.v == 0 and velo.x == 0 and velo.y == 0 and velo.z == 0 then
 		self.object:set_pos(self.object:get_pos())
 		return
 	end
@@ -199,10 +200,13 @@ function ski.on_step(self, dtime)
 		else
 			new_acce = {x = 0, y = -10, z = 0}
 		end
+		-- no snow, no drive speed add
 		new_velo = get_velocity(self.v, self.object:get_yaw(),
 			self.object:get_velocity().y)
 		self.object:set_pos(self.object:get_pos())
 	else
+		-- snow, apply drive velocity
+		self.v = self.v + drive_v
 		p.y = p.y + 1
 		if is_snow(p) then
 			local y = self.object:get_velocity().y
