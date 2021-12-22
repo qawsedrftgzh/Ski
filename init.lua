@@ -7,7 +7,7 @@ local S = minetest.get_translator("Ski")
 -- Helper functions
 --
 
-local function is_water(pos)
+local function is_snow(pos)
 	local nn = minetest.get_node(pos).name
 	return nn == "default:dirt_with_snow" or nn == "default:snowblock" or nn == "default:snow"
 end
@@ -139,6 +139,7 @@ end
 
 function ski.on_step(self, dtime)
 	self.v = get_v(self.object:get_velocity()) * math.sign(self.v)
+	local drive_v = 0
 	if self.driver then
 		local driver_objref = minetest.get_player_by_name(self.driver)
 		if driver_objref then
@@ -146,16 +147,16 @@ function ski.on_step(self, dtime)
 			if ctrl.up and ctrl.down then
 				if not self.auto then
 					self.auto = true
-					minetest.chat_send_player(self.driver, S("Boat cruise mode on"))
+					minetest.chat_send_player(self.driver, S("Ski cruise mode on"))
 				end
 			elseif ctrl.down then
-				self.v = self.v - dtime * 2.0
+				drive_v = - dtime * 2.0
 				if self.auto then
 					self.auto = false
-					minetest.chat_send_player(self.driver, S("Boat cruise mode off"))
+					minetest.chat_send_player(self.driver, S("Ski cruise mode off"))
 				end
 			elseif ctrl.up or self.auto then
-				self.v = self.v + dtime * 2.0
+				drive_v = dtime * 2.0
 			end
 			if ctrl.left then
 				if self.v < -0.001 then
@@ -173,7 +174,7 @@ function ski.on_step(self, dtime)
 		end
 	end
 	local velo = self.object:get_velocity()
-	if self.v == 0 and velo.x == 0 and velo.y == 0 and velo.z == 0 then
+	if drive_v ==0 and self.v == 0 and velo.x == 0 and velo.y == 0 and velo.z == 0 then
 		self.object:set_pos(self.object:get_pos())
 		return
 	end
@@ -186,25 +187,36 @@ function ski.on_step(self, dtime)
 	else
 		self.v = self.v - drag
 	end
-
 	local p = self.object:get_pos()
 	p.y = p.y - 0.001
 	local new_velo
 	local new_acce = {x = 0, y = 0, z = 0}
-	if not is_water(p) then
+	if not is_snow(p) then
 		local nodedef = minetest.registered_nodes[minetest.get_node(p).name]
 		if nodedef.walkable then
 			--self.v = 0
 			new_acce = {x = 0, y = 0.01, z = 0}
+			-- no snow drag
+			drag = dtime*5
+			if math.abs(self.v) <= math.abs(drag) then
+				self.v = 0
+			else
+				self.v = self.v - drag
+			end
 		else
 			new_acce = {x = 0, y = -10, z = 0}
+			self.v = self.v + dtime*5
+			print("add "..(dtime))
 		end
+		-- no snow, no drive speed add
 		new_velo = get_velocity(self.v, self.object:get_yaw(),
 			self.object:get_velocity().y)
 		self.object:set_pos(self.object:get_pos())
 	else
+		-- snow, apply drive velocity
+		self.v = self.v + drive_v
 		p.y = p.y + 1
-		if is_water(p) then
+		if is_snow(p) then
 			local y = self.object:get_velocity().y
 			if y >= 10 then
 				y = 10
@@ -217,14 +229,15 @@ function ski.on_step(self, dtime)
 			self.object:set_pos(self.object:get_pos())
 		else
 			new_acce = {x = 0, y = 0, z = 0}
-			if math.abs(self.object:get_velocity().y) < 1 then
+			local y = self.object:get_velocity().y
+			if math.abs(y) < 1 then
 				local pos = self.object:get_pos()
 				pos.y = math.floor(pos.y) + 0.5
 				self.object:set_pos(pos)
 				new_velo = get_velocity(self.v, self.object:get_yaw(), 0)
 			else
 				new_velo = get_velocity(self.v, self.object:get_yaw(),
-					self.object:get_velocity().y)
+					y)
 				self.object:set_pos(self.object:get_pos())
 			end
 		end
@@ -259,7 +272,7 @@ minetest.register_craftitem("ski:ski", {
 		if pointed_thing.type ~= "node" then
 			return itemstack
 		end
-		if not is_water(pointed_thing.under) then
+		if not is_snow(pointed_thing.under) then
 			return itemstack
 		end
 		pointed_thing.under.y = pointed_thing.under.y + 0.5
