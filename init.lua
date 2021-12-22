@@ -187,25 +187,26 @@ function ski.on_step(self, dtime)
 	else
 		self.v = self.v - drag
 	end
-
 	local p = self.object:get_pos()
 	p.y = p.y - 0.001
 	local new_velo
 	local new_acce = {x = 0, y = 0, z = 0}
 	if not is_snow(p) then
-		-- no snow drag
-		drag = dtime*1
-		if math.abs(self.v) <= math.abs(drag) then
-			self.v = 0
-		else
-			self.v = self.v - drag
-		end
 		local nodedef = minetest.registered_nodes[minetest.get_node(p).name]
 		if nodedef.walkable then
 			--self.v = 0
 			new_acce = {x = 0, y = 0.01, z = 0}
+			-- no snow drag
+			drag = dtime*5
+			if math.abs(self.v) <= math.abs(drag) then
+				self.v = 0
+			else
+				self.v = self.v - drag
+			end
 		else
 			new_acce = {x = 0, y = -10, z = 0}
+			self.v = self.v + dtime*5
+			print("add "..(dtime))
 		end
 		-- no snow, no drive speed add
 		new_velo = get_velocity(self.v, self.object:get_yaw(),
@@ -228,14 +229,15 @@ function ski.on_step(self, dtime)
 			self.object:set_pos(self.object:get_pos())
 		else
 			new_acce = {x = 0, y = 0, z = 0}
-			if math.abs(self.object:get_velocity().y) < 1 then
+			local y = self.object:get_velocity().y
+			if math.abs(y) < 1 then
 				local pos = self.object:get_pos()
 				pos.y = math.floor(pos.y) + 0.5
 				self.object:set_pos(pos)
 				new_velo = get_velocity(self.v, self.object:get_yaw(), 0)
 			else
 				new_velo = get_velocity(self.v, self.object:get_yaw(),
-					self.object:get_velocity().y)
+					y)
 				self.object:set_pos(self.object:get_pos())
 			end
 		end
